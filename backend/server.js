@@ -13,8 +13,24 @@ connectDB();
 
 const app = express();
 
+const allowedOrigins = process.env.FRONTEND_URL 
+  ? process.env.FRONTEND_URL.split(',').map(o => o.trim().replace(/\/$/, '')) 
+  : ['http://localhost:5173', 'http://localhost:3000'];
+
 app.use(cors({
-  origin: "https://project-management-mern-qeqqgxc2v-parthtomar2374-6339s-projects.vercel.app",
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const isVercelPreview = origin.endsWith('vercel.app') && origin.includes('parthtomar2374-6339s-projects');
+    const isAllowed = allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*') || isVercelPreview;
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
