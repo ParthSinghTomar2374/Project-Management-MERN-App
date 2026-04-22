@@ -89,14 +89,14 @@ const Signup = () => {
                 onChange={e => setPassword(e.target.value)}
                 className="w-full appearance-none bg-transparent border-0 border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-0 focus:border-blue-600 dark:focus:border-blue-400 px-0 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 text-[15px] transition-colors"
               />
-            <select className="w-full appearance-none bg-transparent border-0 border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-0 focus:border-blue-600 dark:focus:border-blue-400 px-0 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 text-[15px] transition-colors" 
+            <select className="w-full  appearance-none bg-transparent border-0 border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-0 focus:border-blue-600 dark:focus:border-blue-400 px-0 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 text-[15px] transition-colors" 
             value={role}
             onChange={(e)=> setRole(e.target.value)}
             required
             >
-              <option value="">Select Role</option>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
+              <option value="" className='dark:text-black'>Select Role</option>
+              <option value="user" className='dark:text-black'>User</option>
+              <option value="admin" className='dark:text-black'>Admin</option>
             </select>
 
 
