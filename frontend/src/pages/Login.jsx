@@ -45,7 +45,7 @@ const Login = () => {
       <div className="max-w-md w-full space-y-8 bg-white dark:bg-[#0A0A0A] p-10 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 ring-1 ring-black/5 dark:ring-white/5">
         <div>
           <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-            Welcome back
+            Welcome Back
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             Sign in to track your issues
