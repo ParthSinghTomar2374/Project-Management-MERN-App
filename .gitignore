@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Environment variables — NEVER commit secrets
+.env
+.env.*
+!.env.example
+
+# Build outputs
+dist/
+build/
+dist-ssr/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Test & debug scripts (not for production)
+backend/test.js
+backend/test-db-connection.js
+backend/fix-users.js
+scratch/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Coverage
+coverage/
