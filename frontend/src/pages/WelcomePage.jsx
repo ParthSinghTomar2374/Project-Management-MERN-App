@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
+import { FaBars, FaTimes } from 'react-icons/fa';
 import { AuthContext } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import LLogo from '../assets/LLogo.png';
 import { ThemeContext } from '../context/ThemeContext';
 import DBI from '../assets/DBI.jpg';
@@ -8,25 +9,50 @@ import TeamManagement from '../assets/TeamManagement.png';
 import Graph from '../assets/Graph.jpg';
 import Bells from '../assets/Bells.jpg'
 const WelcomePage = () => {
-    const { theme, toggleTheme } = useContext(ThemeContext);
+    const { toggleTheme } = useContext(ThemeContext);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
         <div className='min-h-screen bg-white dark:bg-[#0A0A0A] flex-1 w-full max-w-7xl mx-auto py-8 sm:px-6 lg:px-8'>
-            <div className='w-full items-center flex justify-between dark:bg-[#0A0A0A]'>
+            <div className='w-full px-6 items-center flex justify-between dark:bg-[#0A0A0A] relative'>
                 <div className='nav-logo items-center pr-6'>
-                   <img src={LLogo} alt="" className='w-20 h-15 cursor-pointer hover:scale-105 transition' onClick={toggleTheme}/>
-                
+                   <img src={LLogo} alt="Logo" className='w-16 h-12 md:w-20 md:h-15 cursor-pointer hover:scale-105 transition' onClick={toggleTheme}/>
                 </div>
                 
-                <div className='flex gap-10 text-sm font-medium text-gray-700 tracking-wide '>
-                <a className='hover:text-black cursor-pointer dark:text-white' href='#products'>Products</a>
-                <a className='hover:text-black cursor-pointer dark:text-white' href='#partner'>Partners</a>
-                <a className='hover:text-black cursor-pointer dark:text-white' href='#Help'>Get Help</a> 
+                
+                <div className='hidden md:flex gap-10 text-sm font-medium text-gray-700 tracking-wide '>
+                    <a className='hover:text-black cursor-pointer dark:text-white' href='#products'>Products</a>
+                    <a className='hover:text-black cursor-pointer dark:text-white' href='#partner'>Partners</a>
+                    <a className='hover:text-black cursor-pointer dark:text-white' href='#Help'>Get Help</a> 
                 </div>
-                <div className='bg-pink-500 hover:bg-pink-600 text-white px-5 py-2 rounded-full text-sm font-medium shadow-md transition items-center flex gap-6'>
-                    <button className='cursor-pointer border-5-pink'><Link to="/login">Get Started</Link></button>
-                    
+
+                <div className='flex items-center gap-4'>
+                    <div className='hidden sm:block bg-pink-500 hover:bg-pink-600 text-white px-5 py-2 rounded-full text-sm font-medium shadow-md transition items-center'>
+                        <button className='cursor-pointer border-5-pink'><Link to="/login">Get Started</Link></button>
+                    </div>
+
+                 
+                    <div className='md:hidden flex items-center'>
+                        <button 
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className='text-gray-700 dark:text-white text-2xl focus:outline-none'
+                        >
+                            {isMenuOpen ? <FaTimes /> : <FaBars />}
+                        </button>
+                    </div>
                 </div>
+
+     
+                {isMenuOpen && (
+                    <div className='absolute top-full left-0 w-full bg-white dark:bg-[#1A1A1A] shadow-lg z-50 py-4 flex flex-col items-center gap-4 md:hidden animate-in fade-in slide-in-from-top-4 duration-300'>
+                        <a className='hover:text-black cursor-pointer dark:text-white py-2 w-full text-center border-b border-gray-100 dark:border-gray-800' href='#products' onClick={() => setIsMenuOpen(false)}>Products</a>
+                        <a className='hover:text-black cursor-pointer dark:text-white py-2 w-full text-center border-b border-gray-100 dark:border-gray-800' href='#partner' onClick={() => setIsMenuOpen(false)}>Partners</a>
+                        <a className='hover:text-black cursor-pointer dark:text-white py-2 w-full text-center border-b border-gray-100 dark:border-gray-800' href='#Help' onClick={() => setIsMenuOpen(false)}>Get Help</a>
+                        <div className='sm:hidden bg-pink-500 hover:bg-pink-600 text-white px-5 py-2 rounded-full text-sm font-medium shadow-md transition w-11/12 text-center'>
+                            <Link to="/login" onClick={() => setIsMenuOpen(false)}>Get Started</Link>
+                        </div>
+                    </div>
+                )}
             </div>
             <div className='Introduction w-full flex flex-col items-center justify-center text-center py-24 px-6 '>
                 <div className='intro-text text-4xl md:text-5xl font-bold text-gray-900 leading-tight max-w-3xl dark:text-white leading-tight max-w-3xl'>

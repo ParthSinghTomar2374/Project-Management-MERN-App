@@ -19,7 +19,7 @@ api.interceptors.request.use((config) => {
     if (user && user.token) {
       config.headers.Authorization = `Bearer ${user.token}`;
     }
-  } catch (error) {
+  } catch {
     // Invalid JSON in localStorage — ignore
   }
   return config;

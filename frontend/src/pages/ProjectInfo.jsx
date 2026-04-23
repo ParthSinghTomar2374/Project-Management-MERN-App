@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { FaSearch, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/SideBar';
 import Topbar from '../components/TopBar';
@@ -14,6 +15,7 @@ const ProjectInfo = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const [form, setForm] = useState({
     projectName: "",
@@ -95,37 +97,25 @@ const ProjectInfo = () => {
     <div className=" flex h-screen bg-gray-50 dark:bg-gray-900 duration-200 text-gray-900 dark:text-gray-100">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Topbar />
+        <Topbar searchTerm={searchTerm} onSearch={setSearchTerm} />
         
-        <div className="p-8 flex-1 overflow-y-auto">
+        <div className="p-4 md:p-8 flex-1 overflow-y-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-            <div>
-              <h1 className="text-3xl font-extrabold tracking-tight dark:text-white">All Projects</h1>
-              <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
+            <div className="w-full md:w-auto text-center md:text-left">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight dark:text-white">Projects</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm max-w-md mx-auto md:mx-0">
                 Manage, organize, and track your ongoing assignments.
               </p>
             </div>
             <button 
               onClick={() => setShowModal(true)}
-              className="py-2.5 px-5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md font-medium transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
+              className="w-full md:w-auto py-3 md:py-2.5 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl md:rounded-xl shadow-lg font-bold transition-all active:scale-95 flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
               New Project
             </button>
           </div>
 
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-xl px-4 py-3 w-full md:w-96 transition-all focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
-              <svg className="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-              <input
-                type="text"
-                placeholder="Search projects..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full outline-none bg-transparent dark:text-white placeholder-gray-400"
-              />
-            </div>
-          </div>
 
           {loading ? (
              <div className="flex justify-center items-center h-64">
@@ -148,7 +138,7 @@ const ProjectInfo = () => {
                 <div 
                   key={project._id}
                   onClick={() => navigate(`/projects/${project._id}`)}
-                  className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all cursor-pointer group flex flex-col"
+                  className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-sm hover:shadow-xl transition-all cursor-pointer group flex flex-col active:scale-[0.98]"
                 >
                   <div className="flex justify-between items-start mb-4">
                     <span className={`text-xs font-bold px-3 py-1 rounded-full ${getStatusColor(project.status)} uppercase tracking-wider`}>

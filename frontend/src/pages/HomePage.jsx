@@ -115,10 +115,7 @@ const HomePage = () => {
     fetchData();
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/WelcomePage");
-  };
+
 
   const handleCreateProject = async (e) => {
     e.preventDefault();
@@ -162,10 +159,7 @@ const HomePage = () => {
 
   const completedTasks = myTasks.filter(issue => issue.status === 'Done');
 
-  const overdueItems = [
-    ...myTasks.filter(i => i.dueDate && new Date(i.dueDate) < new Date() && i.status !== 'Done'),
-    ...myProjects.filter(p => p.endDate && new Date(p.endDate) < new Date() && p.status !== 'Completed')
-  ].sort((a,b) => new Date(a.dueDate || a.endDate) - new Date(b.dueDate || b.endDate));
+
 
   const inProgressItems = [
     ...myTasks.filter(i => i.status === 'In Progress'),

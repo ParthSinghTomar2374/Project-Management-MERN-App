@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
+import Sidebar from '../components/SideBar';
+import Topbar from '../components/TopBar';
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -19,18 +21,16 @@ const ProjectDetails = () => {
   const [showManageMembersModal, setShowManageMembersModal] = useState(false);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [memberError, setMemberError] = useState('');
-  const [allUsers, setAllUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchData = async () => {
     try {
-      const [projRes, issRes, usersRes] = await Promise.all([
+      const [projRes, issRes] = await Promise.all([
         api.get(`/projects/${id}`),
-        api.get(`/projects/${id}/issues`),
-        api.get('/auth/users')
+        api.get(`/projects/${id}/issues`)
       ]);
       setProject(projRes.data);
       setIssues(issRes.data);
-      setAllUsers(Array.isArray(usersRes.data) ? usersRes.data : (usersRes.data?.users || []));
     } catch (err) {
       console.error(err);
     } finally {
@@ -96,10 +96,15 @@ const ProjectDetails = () => {
   if (loading) return <div className="flex justify-center mt-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>;
   if (!project) return <div className="text-center mt-20 text-xl font-medium text-gray-700">Project not found</div>;
 
+  const filteredIssues = issues.filter(i => 
+    i.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (i.description && i.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   const groupedIssues = {
-    'Todo': issues.filter(i => i.status === 'Todo'),
-    'In Progress': issues.filter(i => i.status === 'In Progress'),
-    'Done': issues.filter(i => i.status === 'Done'),
+    'Todo': filteredIssues.filter(i => i.status === 'Todo'),
+    'In Progress': filteredIssues.filter(i => i.status === 'In Progress'),
+    'Done': filteredIssues.filter(i => i.status === 'Done'),
   };
 
   const getPriorityColor = (priority) => {
@@ -113,22 +118,28 @@ const ProjectDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0A0A0A] flex-1 w-full max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
-      <div className="mb-6 flex justify-between items-start">
-        <div>
-          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">{project.projectName}</h2>
-          <p className="mt-2 text-gray-600 dark:text-gray-400 max-w-2xl">{project.description}</p>
-          <div className="mt-4 flex items-center gap-2">
+    <div className="flex h-screen bg-white dark:bg-[#0A0A0A]">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Topbar searchTerm={searchTerm} onSearch={setSearchTerm} />
+        
+        <div className="flex-1 overflow-y-auto custom-scrollbar py-6 md:py-8 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+      <div className="mb-8 flex flex-col md:flex-row justify-between items-start gap-6">
+        <div className="w-full">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">{project.projectName}</h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 max-w-2xl">{project.description}</p>
+          <div className="mt-5 flex flex-wrap items-center gap-3">
             <div className="flex -space-x-2 overflow-hidden">
               {project.members && project.members.map((member) => (
                 <div key={member._id} className="relative group inline-block">
-                  <div className="h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-800 bg-blue-500 text-white flex items-center justify-center text-xs font-bold" title={member.name}>
+                  <div className="h-9 w-9 rounded-full ring-2 ring-white dark:ring-gray-800 bg-blue-500 text-white flex items-center justify-center text-xs font-bold shadow-sm" title={member.name}>
                     {member.name.charAt(0).toUpperCase()}
                   </div>
-                  {project.owner && project.owner._id === user._id && member._id !== project.owner._id && (
+                  {project.owner && (project.owner._id === user._id || project.owner === user._id) && member._id !== (project.owner._id || project.owner) && (
                     <button 
                       onClick={() => handleRemoveMember(member._id)}
-                      className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-red-600 focus:outline-none shadow-sm"
+                      className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 md:group-hover:opacity-100 transition-opacity z-10 hover:bg-red-600 focus:outline-none shadow-sm"
                       title="Remove member"
                     >
                       ×
@@ -138,48 +149,48 @@ const ProjectDetails = () => {
               ))}
               {project.pendingMembers && project.pendingMembers.map((member) => (
                 <div key={member._id} className="relative group inline-block opacity-60">
-                  <div className="h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-800 bg-gray-400 text-white flex items-center justify-center text-xs font-bold border border-dashed border-gray-500" title={`${member.name} (Pending Invitation)`}>
+                  <div className="h-9 w-9 rounded-full ring-2 ring-white dark:ring-gray-800 bg-gray-400 text-white flex items-center justify-center text-xs font-bold border border-dashed border-gray-500" title={`${member.name} (Pending Invitation)`}>
                     {member.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="absolute -top-1 -right-1 bg-yellow-500 w-3 h-3 rounded-full border border-white dark:border-gray-800" title="Pending"></div>
                 </div>
               ))}
             </div>
-            {project.owner && project.owner._id === user._id && (
-              <div className="flex gap-2 ml-2">
-                <button onClick={() => setShowAddMemberModal(true)} className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-md transition-colors border border-blue-100 dark:border-blue-800/50">
+            {project.owner && (project.owner._id === user._id || project.owner === user._id) && (
+              <div className="flex gap-2">
+                <button onClick={() => setShowAddMemberModal(true)} className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-800/50 uppercase tracking-wide">
                   + Invite
                 </button>
-                <button onClick={() => setShowManageMembersModal(true)} className="text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded-md transition-colors border border-gray-200 dark:border-gray-700">
-                  Manage Team
+                <button onClick={() => setShowManageMembersModal(true)} className="text-[11px] font-bold text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 rounded-lg transition-colors border border-gray-200 dark:border-gray-700 uppercase tracking-wide">
+                  Team
                 </button>
               </div>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          {project.owner && project.owner._id === user._id && (
-            <button onClick={handleDeleteProject} className="bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 px-5 py-2.5 rounded-xl font-medium transition-all shadow-sm border border-red-200 dark:border-red-800/50 active:scale-95">
-              Delete Project
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          {project.owner && (project.owner._id === user._id || project.owner === user._id) && (
+            <button onClick={handleDeleteProject} className="flex-1 md:flex-none bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 px-4 py-3 md:py-2.5 rounded-xl font-bold transition-all shadow-sm border border-red-100 dark:border-red-800/50 active:scale-95 text-sm">
+              Delete
             </button>
           )}
-          <button onClick={() => setShowModal(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-sm active:scale-95 flex items-center gap-2">
+          <button onClick={() => setShowModal(true)} className="flex-[2] md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 md:py-2.5 rounded-xl font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 text-sm">
             <span>+</span> New Issue
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-x-auto overflow-y-hidden pb-4">
-        <div className="flex gap-6 h-full min-w-max">
+      <div className="flex-1 overflow-x-auto overflow-y-hidden pb-6 custom-scrollbar snap-x snap-mandatory">
+        <div className="flex gap-5 h-full min-w-max px-1">
           {Object.keys(groupedIssues).map(status => (
-            <div key={status} className="w-80 bg-gray-100/50 dark:bg-gray-800/50 rounded-2xl flex flex-col p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
-              <div className="flex items-center justify-between mb-4 px-1">
-                <h3 className="font-bold text-gray-700 dark:text-gray-300 uppercase text-sm tracking-wider">{status}</h3>
-                <span className="bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold px-2 py-1 rounded-full shadow-sm border border-gray-200 dark:border-gray-600">
+            <div key={status} className="w-[85vw] md:w-80 bg-gray-100/50 dark:bg-gray-800/50 rounded-2xl flex flex-col p-4 border border-gray-200 dark:border-gray-700 shadow-sm snap-center">
+              <div className="flex items-center justify-between mb-5 px-1">
+                <h3 className="font-bold text-gray-700 dark:text-gray-300 uppercase text-[11px] tracking-widest">{status}</h3>
+                <span className="bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-[11px] font-bold px-2 py-0.5 rounded-full shadow-sm border border-gray-200 dark:border-gray-600">
                   {groupedIssues[status].length}
                 </span>
               </div>
-              <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-1">
+              <div className="flex-1 overflow-y-auto space-y-4 custom-scrollbar pr-1">
                 {groupedIssues[status].map(issue => (
                   <Link key={issue._id} to={`/issues/${issue._id}`} className="block block group">
                     <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-500/50 transition-all cursor-pointer">
@@ -248,7 +259,7 @@ const ProjectDetails = () => {
                         setNewIssue({...newIssue, assignedTo: values});
                       }}
                       className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-sm h-32 custom-scrollbar">
-                     {allUsers.map(m => (
+                     {project.members && project.members.map(m => (
                        <option key={m._id} value={m._id} className="py-1">{m.name}</option>
                      ))}
                    </select>
@@ -360,6 +371,9 @@ const ProjectDetails = () => {
           </div>
         </div>
       )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

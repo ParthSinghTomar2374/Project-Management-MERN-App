@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
+import Sidebar from '../components/SideBar';
+import Topbar from '../components/TopBar';
 
 const IssueDetails = () => {
   const { id } = useParams();
@@ -17,7 +19,7 @@ const IssueDetails = () => {
   const [newComment, setNewComment] = useState('');
   const [aiSummary, setAiSummary] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
-  const [allUsers, setAllUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [editFormData, setEditFormData] = useState({ title: '', description: '', priority: 'Medium', assignedTo: [] });
@@ -29,18 +31,16 @@ const IssueDetails = () => {
       
       const pId = issueData.projectId?._id || issueData.projectId;
 
-      const [commentsRes, activitiesRes, projRes, usersRes] = await Promise.all([
+      const [commentsRes, activitiesRes, projRes] = await Promise.all([
         api.get(`/issues/${id}/comments`).catch(() => ({ data: [] })),
         api.get(`/issues/${id}/activities`).catch(() => ({ data: [] })),
-        pId ? api.get(`/projects/${pId}`).catch(() => ({ data: null })) : Promise.resolve({ data: null }),
-        api.get('/auth/users').catch(() => ({ data: [] }))
+        pId ? api.get(`/projects/${pId}`).catch(() => ({ data: null })) : Promise.resolve({ data: null })
       ]);
       
       setIssue(issueData);
       setComments(commentsRes.data || []);
       setActivities(activitiesRes.data || []);
       setProject(projRes.data);
-      setAllUsers(Array.isArray(usersRes.data) ? usersRes.data : (usersRes.data?.users || []));
       
       setEditFormData({
         title: issueRes.data.title,
@@ -152,7 +152,13 @@ const IssueDetails = () => {
   const canChangeStatus = canEdit;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1 w-full max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
+    <div className="flex h-screen bg-white dark:bg-[#0A0A0A]">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Topbar searchTerm={searchTerm} onSearch={setSearchTerm} />
+        
+        <div className="flex-1 overflow-y-auto custom-scrollbar py-8 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2 space-y-8">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
           <div className="flex justify-between items-start mb-6">
@@ -341,7 +347,7 @@ const IssueDetails = () => {
                     {editFormData.assignedTo.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-2">
                         {editFormData.assignedTo.map(uid => {
-                          const u = allUsers.find(u => u._id === uid);
+                          const u = project?.members?.find(u => u._id === uid);
                           return u ? (
                             <span key={uid} className="flex items-center gap-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 text-xs font-medium px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-700">
                               {u.name}
@@ -374,7 +380,7 @@ const IssueDetails = () => {
                       className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-sm text-sm"
                     >
                       <option value="">+ Add assignee...</option>
-                      {allUsers.filter(u => !editFormData.assignedTo.includes(u._id)).map(u => (
+                      {project?.members?.filter(u => !editFormData.assignedTo.includes(u._id)).map(u => (
                         <option key={u._id} value={u._id}>{u.name}</option>
                       ))}
                     </select>
@@ -390,6 +396,9 @@ const IssueDetails = () => {
         </div>
       )}
 
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

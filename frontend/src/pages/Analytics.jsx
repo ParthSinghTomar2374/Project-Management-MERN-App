@@ -111,20 +111,20 @@ const Analytics = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Topbar />
         
-        <div className="p-8 space-y-8 overflow-y-auto flex-1 custom-scrollbar">
+        <div className="p-4 md:p-8 space-y-6 md:space-y-8 overflow-y-auto flex-1 custom-scrollbar">
           
     
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-3xl p-8 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center relative overflow-hidden gap-4">
-            <div className="relative z-10 flex flex-col">
-              <h2 className="text-3xl font-extrabold tracking-tight mb-2">
-                Project Analytics
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl md:rounded-3xl p-5 md:p-8 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center relative overflow-hidden gap-4">
+            <div className="relative z-10 flex flex-col w-full md:w-auto">
+              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-2">
+                Analytics
               </h2>
-              <div className="flex items-center gap-4 mt-2">
-                 <span className="text-blue-100 font-medium">Select Project:</span>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-1">
+                 <span className="text-blue-100 text-sm font-medium">Project:</span>
                  <select 
                    value={selectedProjectId}
                    onChange={e => setSelectedProjectId(e.target.value)}
-                   className="bg-white/20 border border-white/30 text-white rounded-xl px-4 py-2 font-bold outline-none cursor-pointer focus:ring-2 focus:ring-white/50 min-w-[200px]"
+                   className="bg-white/20 border border-white/30 text-white rounded-xl px-4 py-2 font-bold outline-none cursor-pointer focus:ring-2 focus:ring-white/50 w-full sm:min-w-[200px] text-sm"
                  >
                    {myProjects.map(p => (
                      <option key={p._id} value={p._id} className="text-gray-900">{p.projectName}</option>
@@ -135,9 +135,9 @@ const Analytics = () => {
             </div>
             <button 
               onClick={() => navigate('/HomePage')} 
-              className="bg-white text-blue-600 px-6 py-2.5 rounded-xl font-bold shadow-md hover:bg-gray-50 transition relative z-10 whitespace-nowrap"
+              className="bg-white text-blue-600 px-5 py-2 rounded-xl font-bold shadow-md hover:bg-gray-50 transition relative z-10 whitespace-nowrap text-sm w-full md:w-auto text-center"
             >
-              Back to Dashboard
+              Dashboard
             </button>
             
             
@@ -152,11 +152,11 @@ const Analytics = () => {
           ) : (
             <>
            
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard title="Total Tasks" value={projectTasks.length} colorClass="border-l-blue-500" />
-                <StatCard title="Pending Tasks" value={pendingTasks.length} colorClass="border-l-yellow-400" />
-                <StatCard title="In Progress Tasks" value={inProgressTasks.length} colorClass="border-l-green-500" />
-                <StatCard title="Completed Tasks" value={completedTasks.length} colorClass="border-l-pink-500" />
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <StatCard title="Total" value={projectTasks.length} colorClass="border-l-blue-500" />
+                <StatCard title="Pending" value={pendingTasks.length} colorClass="border-l-yellow-400" />
+                <StatCard title="Active" value={inProgressTasks.length} colorClass="border-l-green-500" />
+                <StatCard title="Done" value={completedTasks.length} colorClass="border-l-pink-500" />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -257,54 +257,97 @@ const Analytics = () => {
                 </div>
 
                 {filteredRecentTasks.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr className="border-b border-gray-100 dark:border-gray-700 text-gray-400 dark:text-gray-500 text-sm uppercase tracking-wider">
-                          <th className="pb-3 font-semibold">Task Name</th>
-                          <th className="pb-3 font-semibold">Status</th>
-                          <th className="pb-3 font-semibold">Priority</th>
-                          <th className="pb-3 font-semibold text-right">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredRecentTasks.map(task => (
-                          <tr key={task._id} className="border-b border-gray-50 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                            <td className="py-4">
-                              <p className="font-bold text-gray-900 dark:text-white">{task.title}</p>
-                              {task.projectName && <p className="text-xs text-gray-500 font-medium mt-1">{task.projectName}</p>}
-                            </td>
-                            <td className="py-4">
-                              <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded-md ${
-                                task.status === 'Done' || task.status === 'Completed' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' :
-                                task.status === 'In Progress' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                                'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                              }`}>
-                                {task.status || 'Planning'}
-                              </span>
-                            </td>
-                            <td className="py-4">
-                              <span className={`text-xs font-semibold px-2.5 py-1 flex items-center w-max gap-1 rounded-full ${
-                                task.priority === 'High' ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
-                                task.priority === 'Medium' ? 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400' :
-                                'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400'
-                              }`}>
-                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
-                                {task.priority || 'Medium'}
-                              </span>
-                            </td>
-                            <td className="py-4 text-right">
-                              <button 
-                                onClick={() => navigate(`/issues/${task._id}`)}
-                                className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline"
-                              >
-                                View Details
-                              </button>
-                            </td>
+                  <div className="w-full">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="border-b border-gray-100 dark:border-gray-700 text-gray-400 dark:text-gray-500 text-sm uppercase tracking-wider">
+                            <th className="pb-3 font-semibold">Task Name</th>
+                            <th className="pb-3 font-semibold">Status</th>
+                            <th className="pb-3 font-semibold">Priority</th>
+                            <th className="pb-3 font-semibold text-right">Action</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {filteredRecentTasks.map(task => (
+                            <tr key={task._id} className="border-b border-gray-50 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                              <td className="py-4">
+                                <p className="font-bold text-gray-900 dark:text-white">{task.title}</p>
+                                {task.projectName && <p className="text-xs text-gray-500 font-medium mt-1">{task.projectName}</p>}
+                              </td>
+                              <td className="py-4">
+                                <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded-md ${
+                                  task.status === 'Done' || task.status === 'Completed' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' :
+                                  task.status === 'In Progress' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                                  'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                }`}>
+                                  {task.status || 'Planning'}
+                                </span>
+                              </td>
+                              <td className="py-4">
+                                <span className={`text-xs font-semibold px-2.5 py-1 flex items-center w-max gap-1 rounded-full ${
+                                  task.priority === 'High' ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
+                                  task.priority === 'Medium' ? 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400' :
+                                  'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400'
+                                }`}>
+                                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
+                                  {task.priority || 'Medium'}
+                                </span>
+                              </td>
+                              <td className="py-4 text-right">
+                                <button 
+                                  onClick={() => navigate(`/issues/${task._id}`)}
+                                  className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline"
+                                >
+                                  View Details
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-4">
+                      {filteredRecentTasks.map(task => (
+                        <div key={task._id} className="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-gray-100 dark:border-gray-700 flex flex-col gap-3">
+                          <div className="flex justify-between items-start">
+                            <div className="min-w-0 flex-1">
+                              <p className="font-bold text-gray-900 dark:text-white truncate">{task.title}</p>
+                              <p className="text-xs text-gray-500 font-medium mt-0.5">{task.projectName || "No Project"}</p>
+                            </div>
+                            <span className={`text-[9px] uppercase font-bold px-2 py-1 rounded-md shrink-0 ml-2 ${
+                              task.status === 'Done' || task.status === 'Completed' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' :
+                              task.status === 'In Progress' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                              'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                            }`}>
+                              {task.status || 'Planning'}
+                            </span>
+                          </div>
+                          
+                          <div className="flex justify-between items-center mt-1">
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 flex items-center gap-1 rounded-full ${
+                              task.priority === 'High' ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
+                              task.priority === 'Medium' ? 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400' :
+                              'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400'
+                            }`}>
+                              <div className={`w-1.5 h-1.5 rounded-full ${
+                                task.priority === 'High' ? 'bg-red-500' : task.priority === 'Medium' ? 'bg-orange-500' : 'bg-green-500'
+                              }`}></div>
+                              {task.priority || 'Medium'}
+                            </span>
+                            <button 
+                              onClick={() => navigate(`/issues/${task._id}`)}
+                              className="text-xs font-bold text-blue-600 dark:text-blue-400"
+                            >
+                              Details →
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center flex-1 py-10 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 mt-4">

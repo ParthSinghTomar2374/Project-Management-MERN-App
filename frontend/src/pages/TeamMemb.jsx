@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { FaSearch, FaTimes } from 'react-icons/fa';
 import Sidebar from "../components/SideBar";
 import Topbar from "../components/TopBar";
 import api from "../services/api";
@@ -10,11 +11,10 @@ const TeamMemb = () => {
   const [memberOfTeams, setMemberOfTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
   const [inviteError, setInviteError] = useState("");
-  const [inviteSuccess, setInviteSuccess] = useState("");
   const [inviting, setInviting] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   const [emailList, setEmailList] = useState([]);
@@ -69,7 +69,6 @@ const TeamMemb = () => {
       return;
     }
     setInviteError("");
-    setInviteSuccess("");
     setInviteResults([]);
     setInviting(true);
 
@@ -137,7 +136,7 @@ const TeamMemb = () => {
                 </p>
               </div>
               <button
-                onClick={() => { setShowInviteModal(true); setInviteError(""); setInviteSuccess(""); }}
+                onClick={() => { setShowInviteModal(true); setInviteError(""); }}
                 className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors shadow-sm"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,17 +157,46 @@ const TeamMemb = () => {
               </div>
             </div>
 
-            <div className="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-xl px-4 py-3 mb-6 w-full md:w-96 transition-all focus-within:ring-2 focus-within:ring-blue-500">
-              <svg className="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search team members..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full outline-none bg-transparent dark:text-white placeholder-gray-400"
-              />
+            <div className="flex items-center gap-4 mb-6 relative">
+              {/* Desktop Search */}
+              <div className="hidden md:flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-xl px-4 py-3 w-full md:w-96 transition-all focus-within:ring-2 focus-within:ring-blue-500">
+                <FaSearch className="text-gray-400 mr-2" size={18} />
+                <input
+                  type="text"
+                  placeholder="Search team members..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full outline-none bg-transparent dark:text-white placeholder-gray-400"
+                />
+              </div>
+
+              {/* Mobile Search Toggle */}
+              {!isSearchOpen && (
+                <button
+                  onClick={() => setIsSearchOpen(true)}
+                  className="md:hidden p-4 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm text-gray-500 hover:bg-gray-200 transition-all active:scale-95"
+                >
+                  <FaSearch size={22} />
+                </button>
+              )}
+
+              {/* Mobile Search Expanded */}
+              {isSearchOpen && (
+                <div className="md:hidden flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl rounded-2xl px-5 py-3 w-full animate-in fade-in slide-in-from-top-4 duration-300">
+                  <FaSearch className="text-gray-400 mr-3" size={20} />
+                  <input
+                    type="text"
+                    placeholder="Search team members..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full outline-none bg-transparent dark:text-white placeholder-gray-400 text-lg"
+                    autoFocus
+                  />
+                  <button onClick={() => setIsSearchOpen(false)} className="ml-3 text-gray-400 p-1">
+                    <FaTimes size={20} />
+                  </button>
+                </div>
+              )}
             </div>
 
             {loading ? (
@@ -211,11 +239,10 @@ const TeamMemb = () => {
                               <button
                                 onClick={() => handleRemove(member._id)}
                                 disabled={team?.owner?._id !== currentUser?._id && team?.owner !== currentUser?._id}
-                                className={`text-sm font-medium px-3 py-1 rounded-md border transition-colors ${
-                                  (team?.owner?._id === currentUser?._id || team?.owner === currentUser?._id)
+                                className={`text-sm font-medium px-3 py-1 rounded-md border transition-colors ${(team?.owner?._id === currentUser?._id || team?.owner === currentUser?._id)
                                     ? 'text-red-500 hover:text-red-700 border-red-200 hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
                                     : 'text-gray-300 dark:text-gray-600 border-gray-200 dark:border-gray-700 cursor-not-allowed'
-                                }`}
+                                  }`}
                               >
                                 Remove
                               </button>
@@ -362,11 +389,10 @@ const TeamMemb = () => {
             {inviteResults.length > 0 && (
               <div className="space-y-1.5 mb-4">
                 {inviteResults.map(r => (
-                  <div key={r.email} className={`text-xs px-3 py-2 rounded-lg flex items-center gap-2 ${
-                    r.ok
+                  <div key={r.email} className={`text-xs px-3 py-2 rounded-lg flex items-center gap-2 ${r.ok
                       ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800'
                       : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
-                  }`}>
+                    }`}>
                     <span>{r.ok ? '✓' : '✗'}</span>
                     <span className="font-medium">{r.email}</span>
                     <span className="text-xs opacity-75">— {r.msg}</span>
@@ -378,7 +404,7 @@ const TeamMemb = () => {
             <div className="flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() => { setShowInviteModal(false); setInviteError(""); setInviteSuccess(""); setEmailInput(""); setEmailList([]); setInviteResults([]); }}
+                onClick={() => { setShowInviteModal(false); setInviteError(""); setEmailInput(""); setEmailList([]); setInviteResults([]); }}
                 className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium rounded-xl transition-colors"
               >
                 {inviteResults.length > 0 ? 'Close' : 'Cancel'}
