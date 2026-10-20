@@ -1,4 +1,12 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
+
+// Fix for querySrv ENOTFOUND: Force Node.js to use Google DNS for SRV record lookups
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4']);
+} catch (e) {
+  // Fallback to default system DNS if setServers fails
+}
 
 const connectDB = async () => {
   try {
