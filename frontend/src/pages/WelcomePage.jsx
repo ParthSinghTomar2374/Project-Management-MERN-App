@@ -57,7 +57,7 @@ const WelcomePage = () => {
             <div className='Introduction w-full flex flex-col items-center justify-center text-center py-24 px-6 '>
                 <div className='intro-text text-4xl md:text-5xl font-bold text-gray-900 leading-tight max-w-3xl dark:text-white leading-tight max-w-3xl'>
                     <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight max-w-3xl dark:text-white leading-tight max-w-3xl">
-                     Powerful <span className="text-black  dark:text-white">Task</span><br />
+                     Powerfull <span className="text-black  dark:text-white">Task</span><br />
                     Management Made <span className="text-orange-500">Simple</span>
                      </h1>
                       <p className="mt-6 text-gray-600 text-sm md:text-base max-w-xl dark:text-white leading-tight max-w-3xl">
