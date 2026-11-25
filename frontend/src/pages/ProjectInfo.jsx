@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/SideBar';
 import Topbar from '../components/TopBar';
 import api from '../services/api';
-import { AuthContext } from '../context/AuthContext';
 
 const ProjectInfo = () => {
-  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   
   const [projects, setProjects] = useState([]);
@@ -32,10 +30,8 @@ const ProjectInfo = () => {
       setLoading(true);
       setError(null);
       const res = await api.get('/projects');
-      fetch('http://127.0.0.1:7501/ingest/3ad92269-561a-4cf1-89bf-e30f579133ee',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f005a7'},body:JSON.stringify({sessionId:'f005a7',runId:'initial',hypothesisId:'H3',location:'frontend/src/pages/ProjectInfo.jsx:fetchProjects:success',message:'project list fetched',data:{userId:user?._id||null,responseShape:Array.isArray(res.data)?'array':typeof res.data,projectCount:Array.isArray(res.data)?res.data.length:Array.isArray(res.data?.projects)?res.data.projects.length:0},timestamp:Date.now()})}).catch(()=>{});
       setProjects(Array.isArray(res.data) ? res.data : (res.data?.projects || []));
     } catch (err) {
-      fetch('http://127.0.0.1:7501/ingest/3ad92269-561a-4cf1-89bf-e30f579133ee',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f005a7'},body:JSON.stringify({sessionId:'f005a7',runId:'initial',hypothesisId:'H2',location:'frontend/src/pages/ProjectInfo.jsx:fetchProjects:error',message:'project list fetch failed',data:{userId:user?._id||null,status:err?.response?.status||null,message:err?.response?.data?.message||err?.message||'unknown'},timestamp:Date.now()})}).catch(()=>{});
       console.error("Error fetching projects:", err);
       const msg = err.response?.data?.message || err.message || 'Failed to load projects. Please try again.';
       setError(msg);
@@ -52,7 +48,6 @@ const ProjectInfo = () => {
     e.preventDefault();
     try {
       const res = await api.post('/projects', form);
-      fetch('http://127.0.0.1:7501/ingest/3ad92269-561a-4cf1-89bf-e30f579133ee',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f005a7'},body:JSON.stringify({sessionId:'f005a7',runId:'initial',hypothesisId:'H5',location:'frontend/src/pages/ProjectInfo.jsx:handleCreateProject:success',message:'project info create success',data:{userId:user?._id||null,createdProjectId:res?.data?._id||null,status:res?.status||null},timestamp:Date.now()})}).catch(()=>{});
       setProjects([...projects, res.data]);
       setShowModal(false);
       
@@ -66,7 +61,6 @@ const ProjectInfo = () => {
         lead: ""
       });
     } catch (err) {
-      fetch('http://127.0.0.1:7501/ingest/3ad92269-561a-4cf1-89bf-e30f579133ee',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f005a7'},body:JSON.stringify({sessionId:'f005a7',runId:'initial',hypothesisId:'H1',location:'frontend/src/pages/ProjectInfo.jsx:handleCreateProject:error',message:'project info create failed',data:{userId:user?._id||null,status:err?.response?.status||null,message:err?.response?.data?.message||err?.message||'unknown'},timestamp:Date.now()})}).catch(()=>{});
       console.error("Error creating project:", err);
       alert("Failed to create project");
     }

@@ -98,9 +98,6 @@ const HomePage = () => {
         api.get('/issues').catch(() => ({data: []})),
         api.get('/activities').catch(() => ({data: []}))
       ]);
-      // #region agent log
-      fetch('http://127.0.0.1:7501/ingest/3ad92269-561a-4cf1-89bf-e30f579133ee',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f005a7'},body:JSON.stringify({sessionId:'f005a7',runId:'initial',hypothesisId:'H4',location:'frontend/src/pages/HomePage.jsx:fetchData:responses',message:'dashboard responses received',data:{userId:user?._id||null,projectsShape:Array.isArray(projectsRes.data)?'array':typeof projectsRes.data,issuesShape:Array.isArray(issuesRes.data)?'array':typeof issuesRes.data,activitiesShape:Array.isArray(activitiesRes.data)?'array':typeof activitiesRes.data,projectsCount:Array.isArray(projectsRes.data)?projectsRes.data.length:Array.isArray(projectsRes.data?.projects)?projectsRes.data.projects.length:0},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       setProjects(Array.isArray(projectsRes.data) ? projectsRes.data : (projectsRes.data?.projects || []));
       setIssues(Array.isArray(issuesRes.data) ? issuesRes.data : (issuesRes.data?.issues || []));
       setRecentActivities(Array.isArray(activitiesRes.data) ? activitiesRes.data : (activitiesRes.data?.activities || []));
@@ -121,9 +118,6 @@ const HomePage = () => {
     e.preventDefault();
     try {
       const res = await api.post('/projects', form);
-      // #region agent log
-      fetch('http://127.0.0.1:7501/ingest/3ad92269-561a-4cf1-89bf-e30f579133ee',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f005a7'},body:JSON.stringify({sessionId:'f005a7',runId:'initial',hypothesisId:'H5',location:'frontend/src/pages/HomePage.jsx:handleCreateProject:success',message:'home create project success',data:{userId:user?._id||null,createdProjectId:res?.data?._id||null,ownerType:typeof res?.data?.owner,status:res?.status||null},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       setProjects([...projects, res.data]);
       setShowModal(false);
 
@@ -138,9 +132,6 @@ const HomePage = () => {
         members: "",
       });
     } catch (err) {
-      // #region agent log
-      fetch('http://127.0.0.1:7501/ingest/3ad92269-561a-4cf1-89bf-e30f579133ee',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f005a7'},body:JSON.stringify({sessionId:'f005a7',runId:'initial',hypothesisId:'H1',location:'frontend/src/pages/HomePage.jsx:handleCreateProject:error',message:'home create project failed',data:{userId:user?._id||null,status:err?.response?.status||null,message:err?.response?.data?.message||err?.message||'unknown'},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       console.error(err);
       alert("Failed to create project");
     }

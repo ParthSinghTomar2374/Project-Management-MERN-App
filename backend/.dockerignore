@@ -1,0 +1,20 @@
+# Ignore dependencies (container installs its own)
+node_modules
+npm-debug.log*
+
+# Ignore environment & secret files (injected at runtime via docker-compose / cloud provider)
+.env
+.env.*
+!.env.example
+
+# Ignore git and repo metadata
+.git
+.gitignore
+
+# Ignore local test and scratch files
+fix-users.js
+test*.js
+scratch/
+coverage/
+.vscode
+.idea
