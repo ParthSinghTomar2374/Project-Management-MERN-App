@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: management-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ParthSinghTomar2374/Project-Management-MERN-App
+    targetRevision: main
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

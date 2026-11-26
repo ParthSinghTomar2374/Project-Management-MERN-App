@@ -2,14 +2,18 @@ pipeline {
     agent any
 
     environment {
-        BACKEND_IMAGE  = "issue-tracker-backend:latest"
-        FRONTEND_IMAGE = "issue-tracker-frontend:latest"
+        BACKEND_IMAGE  = "issue-tracker-backend:${BUILD_NUMBER}"
+        FRONTEND_IMAGE = "issue-tracker-frontend:${BUILD_NUMBER}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/ParthSinghTomar2374/Project-Management-MERN-App'
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[url: 'https://github.com/ParthSinghTomar2374/Project-Management-MERN-App']],
+                    extensions: [[$class: 'PathRestriction', excludedRegions: 'k8s/.*']]
+                ])
             }
         }
 
@@ -37,16 +41,21 @@ pipeline {
             }
         }
 
-        stage('Deploy Containers') {
+        stage('Update Manifests') {
             steps {
-                script {
-                    if (isUnix()) {
-                        sh 'docker compose down || true'
-                        sh 'docker compose up -d'
-                    } else {
-                        bat 'docker-compose down || verify >nul'
-                        bat 'docker-compose up -d'
-                    }
+                bat '''powershell -NoProfile -Command "(Get-Content k8s/backend.yaml) -replace 'image: issue-tracker-backend:.*', 'image: issue-tracker-backend:%BUILD_NUMBER%' | Set-Content -Encoding ascii k8s/backend.yaml"'''
+                bat '''powershell -NoProfile -Command "(Get-Content k8s/frontend.yaml) -replace 'image: issue-tracker-frontend:.*', 'image: issue-tracker-frontend:%BUILD_NUMBER%' | Set-Content -Encoding ascii k8s/frontend.yaml"'''
+            }
+        }
+
+        stage('Push Manifests to Git') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                    bat 'git config user.email "jenkins@local"'
+                    bat 'git config user.name "Jenkins"'
+                    bat 'git add k8s'
+                    bat 'git commit -m "ci: deploy build %BUILD_NUMBER%"'
+                    bat 'git push https://%GIT_USER%:%GIT_TOKEN%@github.com/ParthSinghTomar2374/Project-Management-MERN-App.git HEAD:main'
                 }
             }
         }
@@ -54,7 +63,7 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline completed successfully! Frontend running at http://localhost:5173, Backend at http://localhost:5000"
+            echo "Build ${BUILD_NUMBER} pushed to Git. Argo CD will deploy it (https://localhost:8443)."
         }
         failure {
             echo "Pipeline failed. Check stage logs for details."
