@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main', url: 'https://github.com/ParthSinghTomar2374/Project-Management-MERN-App'
             }
         }
 
